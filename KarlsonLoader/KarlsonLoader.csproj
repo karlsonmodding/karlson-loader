@@ -155,9 +155,6 @@
   <ItemGroup>
     <Resource Include="Swagg.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="OneDrive.ico" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
