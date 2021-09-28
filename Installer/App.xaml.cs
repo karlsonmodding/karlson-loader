@@ -76,15 +76,15 @@ namespace KarlsonLoader
             WebClient wc = new WebClient();
             wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
             wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-            await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/update.exe"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "KarlsonLoader.exe")); // fetch newest KarlsonLoader
+            await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/update.exe"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "KarlsonLoader.exe")); // fetch newest KarlsonLoader
             foreach(string s in new string[] { "Microsoft.Web.Infrastructure.dll", "System.Web.Helpers.dll", "System.Web.Razor.dll", "System.Web.WebPages.Deployment.dll", "System.Web.WebPages.dll", "System.Web.WebPages.Razor.dll" })
             { // download all needed dlls for KarlsonLoader (located on the server)
-                await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/libs/" + s), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs", s)); // fetch newest KarlsonLoader
+                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/libs/" + s), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs", s)); // fetch newest KarlsonLoader
             }
-            await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/libs/MInject/x64.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs", "MInject.dll")); // fetch newest KarlsonLoader
-            await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
-            await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/karlsonloaderbundle"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderbundle"));
-            await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/libs/data/icon.ico"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "icon.ico"));
+            await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/libs/MInject/x64.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs", "MInject.dll")); // fetch newest KarlsonLoader
+            await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+            await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderbundle"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderbundle"));
+            await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/libs/data/icon.ico"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "icon.ico"));
             Process.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "KarlsonLoader.exe"), "-installed " + Path.GetFileName(Assembly.GetExecutingAssembly().CodeBase));
             Environment.Exit(0);
         }

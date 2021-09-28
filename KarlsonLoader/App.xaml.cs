@@ -82,7 +82,7 @@ namespace KarlsonLoader
             dynamic newVer;
             using(var client = new HttpClient())
             {
-                var response = await client.GetAsync("https://redline2.go.ro/karlsonloader/api/version");
+                var response = await client.GetAsync("https://api.xiloe.fr/karlsonloader/api/version");
                 newVer = Json.Decode(response.Content.ReadAsStringAsync().Result);
             }
             if(int.Parse(newVer.major) > VERSION[0] || (int.Parse(newVer.major) == VERSION[0] && int.Parse(newVer.minor) > VERSION[1]))
@@ -91,7 +91,7 @@ namespace KarlsonLoader
                 WebClient wc = new WebClient();
                 wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
                 wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-                wc.DownloadFileAsync(new Uri("https://redline2.go.ro/karlsonloader/update.exe"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "update.exe"));
+                wc.DownloadFileAsync(new Uri("https://api.xiloe.fr/karlsonloader/update.exe"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "update.exe"));
                 return;
             }
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data")))
@@ -104,7 +104,7 @@ namespace KarlsonLoader
                 isDepDownloading = true;
                 filesToDownload = 1;
                 filesDownloaded = 0;
-                await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
                 isDepDownloading = false;
             }
             /*else
@@ -119,7 +119,7 @@ namespace KarlsonLoader
                 string newHash;
                 using(var client = new HttpClient())
                 {
-                    var response = await client.GetAsync("https://redline2.go.ro/karlsonloader/karlsonloaderasm.hash");
+                    var response = await client.GetAsync("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.hash");
                     newHash = response.Content.ReadAsStringAsync().Result;
                 }
                 if(newHash != currenthash)
@@ -131,7 +131,7 @@ namespace KarlsonLoader
                     filesToDownload = 1;
                     filesDownloaded = 0;
                     File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
-                    await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+                    await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
                     isDepDownloading = false;
                 }
             }*/
@@ -143,7 +143,7 @@ namespace KarlsonLoader
                 isDepDownloading = true;
                 filesToDownload = 1;
                 filesDownloaded = 0;
-                await wc.DownloadFileTaskAsync(new Uri("https://redline2.go.ro/karlsonloader/karlsonloaderbundle"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderbundle"));
+                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderbundle"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderbundle"));
                 isDepDownloading = false;
             }
             if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "icon.ico")))
@@ -154,7 +154,7 @@ namespace KarlsonLoader
                 WebClient wc = new WebClient();
                 wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
                 wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-                wc.DownloadFileAsync(new Uri("https://redline2.go.ro/karlsonloader/libs/data/icon.ico"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "icon.ico"));
+                wc.DownloadFileAsync(new Uri("https://api.xiloe.fr/karlsonloader/libs/data/icon.ico"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "icon.ico"));
                 isDepDownloading = false;
             }
             if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "cfg")))
