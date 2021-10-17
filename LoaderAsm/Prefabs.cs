@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace KarlsonLoader
 {
-    class Prefabs
+    public class Prefabs
     {
         /* Weapons */
 
