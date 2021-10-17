@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -28,7 +29,7 @@ namespace LoaderAsm
         public static void Init()
         {
             KarlsonLoaderDir = Environment.GetEnvironmentVariable("KarlsonLoaderDir", EnvironmentVariableTarget.Process);
-            //WinConsole.Initialize();
+            WinConsole.Initialize();
             IntPtr hWnd = FindWindow(null, Application.productName);
             SetWindowText(hWnd, "Karlson (modded)");
             Application.logMessageReceived += Application_logMessageReceived;
@@ -46,6 +47,21 @@ namespace LoaderAsm
             if (!Directory.Exists(Path.Combine(KarlsonLoaderDir, "UML", "res")))
                 Directory.CreateDirectory(Path.Combine(KarlsonLoaderDir, "UML", "res"));
             File.WriteAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), "");
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        }
+
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            if(new AssemblyName(args.Name).Name == "LoaderAsm")
+                return Assembly.GetExecutingAssembly();
+            string folderPath = Path.Combine(KarlsonLoaderDir, "UML", "deps");
+            string asmPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
+            if(!File.Exists(asmPath))
+            {
+                Log("[KarlsonLoader] Couldn't resolve " + args.Name);
+                return null;
+            }
+            return Assembly.LoadFrom(asmPath);
         }
 
         private static void Application_logMessageReceived(string condition, string stackTrace, LogType type)
@@ -56,7 +72,7 @@ namespace LoaderAsm
         public static void Log(string str)
         {
             Console.WriteLine(str);
-            File.AppendAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), str);
+            File.AppendAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), str + "\n");
         }
     }
 

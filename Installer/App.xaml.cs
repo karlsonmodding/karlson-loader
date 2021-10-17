@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using DialogResult = System.Windows.Forms.DialogResult;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace KarlsonLoader
 {
@@ -70,6 +72,8 @@ namespace KarlsonLoader
                 if (File.Exists(Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName, "KarlsonLoader.exe")))
                     File.Delete(Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName, "KarlsonLoader.exe"));
             }
+            // prep WebClient for https
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             splash.SetStatus("Downloading files (1/11) [                    ]");
             Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libs"));
             Directory.CreateDirectory(Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data")));
@@ -104,6 +108,11 @@ namespace KarlsonLoader
                 temp += " ";
             temp += $"] ({e.TotalBytesToReceive - e.BytesReceived} bytes left)";
             splash.SetStatus(temp);
+        }
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+        {
+            return true;
         }
     }
 }

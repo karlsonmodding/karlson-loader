@@ -46,6 +46,8 @@ namespace KarlsonLoader
             {
                 Loader.Log($"Loading file {Path.GetFileName(s)}");
                 Assembly assembly = Assembly.LoadFrom(s);
+                Loader.Log("  Loaded file.");
+                //Loader.Log(assembly.GetTypes().Length + "");
                 bool loaded = false;
                 int num = 0;
                 try
@@ -66,6 +68,12 @@ namespace KarlsonLoader
                 catch (ReflectionTypeLoadException ex)
                 {
                     Loader.Log(ex.ToString());
+                    Loader.Log(ex.Message);
+                    foreach (var iex in ex.LoaderExceptions)
+                    {
+                        Loader.Log(iex.ToString());
+                        Loader.Log(iex.Message);
+                    }
                 }
                 if (!loaded)
                 {
@@ -137,8 +145,14 @@ namespace KarlsonLoader
                 elapsedLoadingTime += Time.deltaTime;
             if(Input.GetKeyDown(KeyCode.H))
             {
-                GameObject enemy = Prefabs.NewEnemy();
+                GameObject enemy = Prefabs.NewGrappler();
                 enemy.transform.position = PlayerMovement.Instance.transform.position + new Vector3(5f, 5f, 1f);
+            }
+            foreach (var m in from x in mods
+                              where x.isLoaded
+                              select x)
+            {
+                m.mod.Update(Time.deltaTime);
             }
         }
 
@@ -172,7 +186,35 @@ namespace KarlsonLoader
                 infoFont.fontStyle = FontStyle.Bold;
                 infoFont.normal.textColor = Color.white;
                 infoFont.alignment = TextAnchor.LowerLeft;
-                GUI.Label(new Rect(10f, 0f, 1000f, Screen.height), $"{mods.FindAll((m) => m.isLoaded).Count} mods loaded.\nKarlsonLoader (ASM v0.1)", infoFont);
+                GUI.Label(new Rect(10f, 0f, 1000f, Screen.height), $"{mods.FindAll((m) => m.isLoaded).Count} mods loaded.\nKarlsonLoader (ASM v0.2)", infoFont);
+            }
+            foreach(var m in from x in mods
+                             where x.isLoaded
+                             select x)
+            {
+                m.mod.OnGUI();
+            }
+        }
+
+        public void FixedUpdate()
+        {
+
+            foreach (var m in from x in mods
+                              where x.isLoaded
+                              select x)
+            {
+                m.mod.FixedUpdate(Time.fixedDeltaTime);
+            }
+        }
+
+        public void OnApplicationQuit()
+        {
+
+            foreach (var m in from x in mods
+                              where x.isLoaded
+                              select x)
+            {
+                m.mod.OnApplicationQuit();
             }
         }
     }

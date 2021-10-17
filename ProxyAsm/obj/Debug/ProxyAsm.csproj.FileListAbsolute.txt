@@ -1,0 +1,6 @@
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\bin\Debug\ProxyAsm.dll
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\bin\Debug\ProxyAsm.pdb
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\obj\Debug\ProxyAsm.csproj.AssemblyReference.cache
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\obj\Debug\ProxyAsm.csproj.CoreCompileInputs.cache
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\obj\Debug\ProxyAsm.dll
+C:\Users\HosuGeorge\Desktop\KarlsonLoader\ProxyAsm\obj\Debug\ProxyAsm.pdb

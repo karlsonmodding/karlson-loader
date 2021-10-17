@@ -8,7 +8,7 @@ namespace KarlsonLoader
 {
     public class ResourceManager
     {
-        public static Dictionary<string, AssetBundle> assetBundles = new Dictionary<string, AssetBundle>();
+        private static Dictionary<string, AssetBundle> assetBundles = new Dictionary<string, AssetBundle>();
 
         public static void RegisterAssetBundle(string guid)
         {

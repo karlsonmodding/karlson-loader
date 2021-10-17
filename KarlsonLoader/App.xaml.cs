@@ -21,6 +21,8 @@ using System.Reflection;
 using MInject;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace KarlsonLoader
 {
@@ -33,21 +35,20 @@ namespace KarlsonLoader
         static extern bool PostMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
         const uint WM_KEYDOWN = 0x0100;
 
-        public static readonly int[] VERSION = new int[] { 0, 5 };
+        public static readonly int[] VERSION = new int[] { 0, 6 };
 
         private MainWindow splash;
         private Process karlson;
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            if(Process.GetProcessesByName("KarlsonLoader").Length > 1)
+            if (Process.GetProcessesByName("KarlsonLoader").Length > 1)
             {
                 MessageBox.Show("KarlsonLoader is already running.\nOnly one instance can run at a time", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
 
             splash = new MainWindow();
-
             Random rand = new Random();
             if (rand.Next(0, 100) < 2)
             {
@@ -62,6 +63,7 @@ namespace KarlsonLoader
                 Dispatcher.Invoke(() => { }, DispatcherPriority.Render);
                 Thread.Sleep(10);
             }
+
             splash.SetStatus("Cleaning up updater..");
             foreach(var p in Process.GetProcessesByName("Command Prompt"))
             {
@@ -78,7 +80,12 @@ namespace KarlsonLoader
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Environment.GetCommandLineArgs()[2])))
                     File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Environment.GetCommandLineArgs()[2]));
             }
+
             splash.SetStatus("Checking for updates..");
+
+            // prep webclient for https
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+
             dynamic newVer;
             using(var client = new HttpClient())
             {
@@ -96,7 +103,9 @@ namespace KarlsonLoader
             }
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data")))
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data"));
-            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll")))
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll")))
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll")))
             {
                 WebClient wc = new WebClient();
                 wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
@@ -104,7 +113,18 @@ namespace KarlsonLoader
                 isDepDownloading = true;
                 filesToDownload = 1;
                 filesDownloaded = 0;
-                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/LoaderAsm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll"));
+                isDepDownloading = false;
+            }
+            if(!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ProxyAsm.dll")))
+            {
+                WebClient wc = new WebClient();
+                wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
+                isDepDownloading = true;
+                filesToDownload = 1;
+                filesDownloaded = 0;
+                await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/ProxyAsm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ProxyAsm.dll"));
                 isDepDownloading = false;
             }
             /*else
@@ -186,8 +206,10 @@ namespace KarlsonLoader
                 MessageBox.Show("Your karlson installation is x32 but KarlsonLoader is x64. Install karlson x64 or install KarlsonLoader x32 (TBA)", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
-            karlson = new Process();
-            karlson.StartInfo = new ProcessStartInfo(Path.Combine(karlsonDir, "Karlson.exe"));
+            karlson = new Process
+            {
+                StartInfo = new ProcessStartInfo(Path.Combine(karlsonDir, "Karlson.exe"))
+            };
             karlson.StartInfo.UseShellExecute = false;
             karlson.StartInfo.EnvironmentVariables.Add("KarlsonLoaderDir", AppDomain.CurrentDomain.BaseDirectory);
             karlson.Start();
@@ -207,11 +229,11 @@ namespace KarlsonLoader
             trayIcon.ShowBalloonTip(0, "KarlsonLoader", "KarlsonLoader minimised to tray.\nIt will shutdown when you exit karlson.", System.Windows.Forms.ToolTipIcon.None);
             Thread.Sleep(100);
 
-            // run MInject with karlsonloaderasm.dll
-            // Method: LoaderAsm.Loader.Init()
+            // run MInject with ProxyAsm.dll
+            // Method: ProxyAsm.Loader.Init()
             if(MonoProcess.Attach(karlson, out MonoProcess m_karlson))
             {
-                byte[] assemblyBytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
+                byte[] assemblyBytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ProxyAsm.dll"));
                 IntPtr monoDomain = m_karlson.GetRootDomain();
                 m_karlson.ThreadAttach(monoDomain);
                 m_karlson.SecuritySetMode(0);
@@ -220,7 +242,7 @@ namespace KarlsonLoader
                 IntPtr rawAssemblyImage = m_karlson.ImageOpenFromDataFull(assemblyBytes);
                 IntPtr assemblyPointer = m_karlson.AssemblyLoadFromFull(rawAssemblyImage);
                 IntPtr assemblyImage = m_karlson.AssemblyGetImage(assemblyPointer);
-                IntPtr classPointer = m_karlson.ClassFromName(assemblyImage, "LoaderAsm", "Loader");
+                IntPtr classPointer = m_karlson.ClassFromName(assemblyImage, "ProxyAsm", "Loader");
                 IntPtr methodPointer = m_karlson.ClassGetMethodFromName(classPointer, "Init");
 
                 m_karlson.RuntimeInvoke(methodPointer);
@@ -275,6 +297,11 @@ namespace KarlsonLoader
                 temp += " ";
             temp += $"] ({e.TotalBytesToReceive - e.BytesReceived} bytes left)";
             splash.SetStatus(temp);
+        }
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+        {
+            return true;
         }
     }
 }
