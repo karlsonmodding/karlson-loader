@@ -50,12 +50,13 @@ namespace KarlsonLoader
         }
 
         private static GameObject grappler;
+        private static GameObject grappler_aim;
         public static GameObject NewGrappler()
         {
             GameObject _grappler = UnityEngine.Object.Instantiate(grappler);
-            _grappler.name = "Boomer #" + UnityEngine.Random.Range(0, 32767);
+            _grappler.name = "Grappler #" + UnityEngine.Random.Range(0, 32767);
             _grappler.SetActive(true);
-            _grappler.GetComponent<Grappler>().aim = UnityEngine.Object.Instantiate(grappler.GetComponent<Grappler>().aim);
+            _grappler.GetComponent<Grappler>().aim = UnityEngine.Object.Instantiate(grappler_aim);
             return _grappler;
         }
 
@@ -162,6 +163,7 @@ namespace KarlsonLoader
                         _enemy.SetActive(false);
                         _enemy.transform.position = new Vector3(-10000f, -10000f, -10000f);
                         enemy = _enemy;
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Enemy");
                         break;
                     }
                     case "Pistol":
@@ -170,6 +172,7 @@ namespace KarlsonLoader
                         pistol.name = "KarlsonLoader-Instance Pistol";
                         UnityEngine.Object.DontDestroyOnLoad(pistol);
                         pistol.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Pistol");
                         break;
                     }
                     case "Ak47":
@@ -178,6 +181,7 @@ namespace KarlsonLoader
                         ak47.name = "KarlsonLoader-Instance Ak47";
                         UnityEngine.Object.DontDestroyOnLoad(ak47);
                         ak47.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Ak47");
                         break;
                     }
                     case "Shotgun":
@@ -186,6 +190,7 @@ namespace KarlsonLoader
                         shotgun.name = "KarlsonLoader-Instance Shotgun";
                         UnityEngine.Object.DontDestroyOnLoad(shotgun);
                         shotgun.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Shotgun");
                         break;
                     }
                     case "Boomer":
@@ -194,6 +199,7 @@ namespace KarlsonLoader
                         boomer.name = "KarlsonLoader-Instance Boomer";
                         UnityEngine.Object.DontDestroyOnLoad(boomer);
                         boomer.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Boomer");
                         break;
                     }
                     case "Grappler":
@@ -202,7 +208,9 @@ namespace KarlsonLoader
                         grappler.name = "KarlsonLoader-Instance Grappler";
                         UnityEngine.Object.DontDestroyOnLoad(grappler);
                         grappler.SetActive(false);
-                        grappler.GetComponent<Grappler>().aim = UnityEngine.Object.Instantiate(o.GetComponent<Grappler>().aim);
+                        grappler_aim = UnityEngine.Object.Instantiate(o.GetComponent<Grappler>().aim);
+                        UnityEngine.Object.DontDestroyOnLoad(grappler_aim);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Grappler");
                         break;
                     }
                     case "Table":
@@ -211,6 +219,7 @@ namespace KarlsonLoader
                         table.name = "KarlsonLoader-Instance Table";
                         UnityEngine.Object.DontDestroyOnLoad(table);
                         table.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Table");
                         break;
                     }
                     case "Barrel":
@@ -219,6 +228,7 @@ namespace KarlsonLoader
                         barrel.name = "KarlsonLoader-Instance Barrel";
                         UnityEngine.Object.DontDestroyOnLoad(barrel);
                         barrel.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Barrel");
                         break;
                     }
                     case "Locker":
@@ -227,6 +237,7 @@ namespace KarlsonLoader
                         locker.name = "KarlsonLoader-Instance Locker";
                         UnityEngine.Object.DontDestroyOnLoad(locker);
                         locker.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Locker");
                         break;
                     }
                     case "Screen":
@@ -235,6 +246,7 @@ namespace KarlsonLoader
                         screen.name = "KarlsonLoader-Instance Screen";
                         UnityEngine.Object.DontDestroyOnLoad(screen);
                         screen.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Screen");
                         break;
                     }
                     case "Milk":
@@ -243,6 +255,7 @@ namespace KarlsonLoader
                         milk.name = "KarlsonLoader-Instance Milk";
                         UnityEngine.Object.DontDestroyOnLoad(milk);
                         milk.SetActive(false);
+                        LoaderAsm.Loader.Log("[KarlsonLoader] (Prefabs) Instantiated Milk");
                         break;
                     }
                 }

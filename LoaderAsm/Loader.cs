@@ -175,6 +175,6 @@ namespace LoaderAsm
 
         private const UInt32 ATTACH_PARRENT = 0xFFFFFFFF;
 
-        #endregion
+        #endregion  
     }
 }
