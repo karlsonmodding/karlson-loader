@@ -187,7 +187,7 @@ namespace KarlsonLoader
                 infoFont.fontStyle = FontStyle.Bold;
                 infoFont.normal.textColor = Color.white;
                 infoFont.alignment = TextAnchor.LowerLeft;
-                GUI.Label(new Rect(10f, 0f, 1000f, Screen.height), $"{mods.FindAll((m) => m.isLoaded).Count} mods loaded.\nKarlsonLoader (ASM v0.3)", infoFont);
+                GUI.Label(new Rect(10f, 0f, 1000f, Screen.height), $"{mods.FindAll((m) => m.isLoaded).Count} mods loaded.\nKarlsonLoader (ASM v0.4)", infoFont);
             }
             foreach(var m in from x in mods
                              where x.isLoaded

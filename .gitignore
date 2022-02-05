@@ -4,6 +4,8 @@ KarlsonLoader/bin
 KarlsonLoader/obj
 LoaderAsm/bin
 LoaderAsm/obj
+ProxyAsm/bin
+ProxyAsm/obj
 .vs
 build
 x64

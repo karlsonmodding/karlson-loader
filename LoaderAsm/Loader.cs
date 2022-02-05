@@ -29,15 +29,6 @@ namespace LoaderAsm
         public static void Init()
         {
             KarlsonLoaderDir = Environment.GetEnvironmentVariable("KarlsonLoaderDir", EnvironmentVariableTarget.Process);
-            WinConsole.Initialize();
-            IntPtr hWnd = FindWindow(null, Application.productName);
-            SetWindowText(hWnd, "Karlson (modded)");
-            Application.logMessageReceived += Application_logMessageReceived;
-            GameObject go = new GameObject("KarlsonLoader_MonoHooks");
-            UnityEngine.Object.DontDestroyOnLoad(go);
-            go.AddComponent<KarlsonLoader.MonoHooks>();
-            AssetBundle ab = AssetBundle.LoadFromFile(Path.Combine(KarlsonLoaderDir, "data", "karlsonloaderbundle"));
-            Texture2D_splash = ab.LoadAsset<Texture2D>("Splash");
             if (!Directory.Exists(Path.Combine(KarlsonLoaderDir, "UML")))
                 Directory.CreateDirectory(Path.Combine(KarlsonLoaderDir, "UML"));
             if (!Directory.Exists(Path.Combine(KarlsonLoaderDir, "UML", "mods")))
@@ -47,11 +38,26 @@ namespace LoaderAsm
             if (!Directory.Exists(Path.Combine(KarlsonLoaderDir, "UML", "res")))
                 Directory.CreateDirectory(Path.Combine(KarlsonLoaderDir, "UML", "res"));
             File.WriteAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), "");
+            if (!File.Exists(Path.Combine(KarlsonLoaderDir, "UML", "config")))
+                File.WriteAllText(Path.Combine(KarlsonLoaderDir, "UML", "config"), "console=true\nunitylog=true\nlogfile=true");
+            new Config(File.ReadAllLines(Path.Combine(KarlsonLoaderDir, "UML", "config")));
+            if (Config.config.console)
+                WinConsole.Initialize();
+            IntPtr hWnd = FindWindow(null, Application.productName);
+            SetWindowText(hWnd, "Karlson (modded)");
+            if(Config.config.unitylog)
+                Application.logMessageReceived += Application_logMessageReceived;
+            GameObject go = new GameObject("KarlsonLoader_MonoHooks");
+            UnityEngine.Object.DontDestroyOnLoad(go);
+            go.AddComponent<KarlsonLoader.MonoHooks>();
+            AssetBundle ab = AssetBundle.LoadFromFile(Path.Combine(KarlsonLoaderDir, "data", "karlsonloaderbundle"));
+            Texture2D_splash = ab.LoadAsset<Texture2D>("Splash");
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            Log("[KarlsonLoader] Resolving assembly " + args.Name);
             if(new AssemblyName(args.Name).Name == "LoaderAsm")
                 return Assembly.GetExecutingAssembly();
             string folderPath = Path.Combine(KarlsonLoaderDir, "UML", "deps");
@@ -72,7 +78,8 @@ namespace LoaderAsm
         public static void Log(string str)
         {
             Console.WriteLine(str);
-            File.AppendAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), str + "\n");
+            if (Config.config.logfile)
+                File.AppendAllText(Path.Combine(KarlsonLoaderDir, "UML", "log"), str + "\n");
         }
     }
 
@@ -176,5 +183,37 @@ namespace LoaderAsm
         private const UInt32 ATTACH_PARRENT = 0xFFFFFFFF;
 
         #endregion  
+    }
+    public class Config
+    {
+        public Config(string[] lines)
+        {
+            foreach (string text in lines)
+            {
+                string label = text.Split('=')[0];
+                string value = text.Split('=')[1];
+                switch (label)
+                {
+                    case "console":
+                        console = (value == "true");
+                        break;
+                    case "unitylog":
+                        unitylog = (value == "true");
+                        break;
+                    case "logfile":
+                        logfile = (value == "true");
+                        break;
+                    default:
+                        Loader.Log($"[ERR] Unknown label: {label}");
+                        break;
+                }
+            }
+            config = this;
+        }
+
+        public static Config config;
+        public bool console = true;
+        public bool unitylog = true;
+        public bool logfile = true;
     }
 }

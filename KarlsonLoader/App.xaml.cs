@@ -35,7 +35,7 @@ namespace KarlsonLoader
         static extern bool PostMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
         const uint WM_KEYDOWN = 0x0100;
 
-        public static readonly int[] VERSION = new int[] { 0, 6 };
+        public static readonly int[] VERSION = new int[] { 0, 7 };
 
         private MainWindow splash;
         private Process karlson;
@@ -116,6 +116,34 @@ namespace KarlsonLoader
                 await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/LoaderAsm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll"));
                 isDepDownloading = false;
             }
+            else
+            {
+                string currenthash;
+                using (var stream = File.OpenRead(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll")))
+                {
+                    var sha = new SHA256Managed();
+                    byte[] checksum = sha.ComputeHash(stream);
+                    currenthash = BitConverter.ToString(checksum).Replace("-", string.Empty).Trim();
+                }
+                string newHash;
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync("https://api.xiloe.fr/karlsonloader/LoaderAsm.hash");
+                    newHash = response.Content.ReadAsStringAsync().Result.Trim();
+                }
+                if (newHash != currenthash)
+                {
+                    WebClient wc = new WebClient();
+                    wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                    wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
+                    isDepDownloading = true;
+                    filesToDownload = 1;
+                    filesDownloaded = 0;
+                    File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll"));
+                    await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/LoaderAsm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "LoaderAsm.dll"));
+                    isDepDownloading = false;
+                }
+            }
             if(!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ProxyAsm.dll")))
             {
                 WebClient wc = new WebClient();
@@ -127,34 +155,7 @@ namespace KarlsonLoader
                 await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/ProxyAsm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ProxyAsm.dll"));
                 isDepDownloading = false;
             }
-            /*else
-            {
-                string currenthash;
-                using (var stream = File.OpenRead(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll")))
-                {
-                    var sha = new SHA256Managed();
-                    byte[] checksum = sha.ComputeHash(stream);
-                    currenthash = BitConverter.ToString(checksum).Replace("-", String.Empty);
-                }
-                string newHash;
-                using(var client = new HttpClient())
-                {
-                    var response = await client.GetAsync("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.hash");
-                    newHash = response.Content.ReadAsStringAsync().Result;
-                }
-                if(newHash != currenthash)
-                {
-                    WebClient wc = new WebClient();
-                    wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
-                    wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-                    isDepDownloading = true;
-                    filesToDownload = 1;
-                    filesDownloaded = 0;
-                    File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
-                    await wc.DownloadFileTaskAsync(new Uri("https://api.xiloe.fr/karlsonloader/karlsonloaderasm.dll"), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderasm.dll"));
-                    isDepDownloading = false;
-                }
-            }*/
+
             if(!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "karlsonloaderbundle")))
             {
                 WebClient wc = new WebClient();
@@ -278,6 +279,7 @@ namespace KarlsonLoader
             else
             {
                 Process.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "update.exe"));
+                Thread.Sleep(1);
                 Environment.Exit(0);
             }
         }
